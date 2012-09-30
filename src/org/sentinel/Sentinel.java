@@ -2,12 +2,14 @@ package org.sentinel;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.sentinel.configuration.Configuration;
+import org.sentinel.configuration.ConfigurationException;
 import org.sentinel.configuration.Listener;
 import org.sentinel.configuration.NoSuchConfigurationServerException;
 import org.sentinel.configuration.Server;
@@ -23,13 +25,14 @@ public class Sentinel
 
     private String configurationFile = null;
     private Configuration configuration = null;
+    private ArrayList<org.sentinel.server.Listener> listeners = null;
 
     public Sentinel(String configurationFile)
     {
         this.configurationFile = configurationFile;
     }
 
-    public void run()
+    public void run() throws Exception
     {
         try {
             // read the configuration file
@@ -40,6 +43,9 @@ public class Sentinel
             doc.getDocumentElement().normalize();
 
             // build internal configuration
+            if(!doc.getDocumentElement().getNodeName().equals("sentinel")) {
+                throw new ConfigurationException("Root node of configuration file must be 'sentinel'.");
+            }
             configuration = new Configuration();
 
             // listeners
@@ -70,22 +76,22 @@ public class Sentinel
             launch();
         }
         catch(ClassNotFoundException ex) {
-            Logger.getLogger(Sentinel.class.getName()).log(Level.SEVERE, null, ex);
+            throw ex;
         }
         catch(SAXException ex) {
-            Logger.getLogger(Sentinel.class.getName()).log(Level.SEVERE, null, ex);
+            throw ex;
         }
         catch(ParserConfigurationException ex) {
-            Logger.getLogger(Sentinel.class.getName()).log(Level.SEVERE, null, ex);
+            throw ex;
         }
         catch(IOException ex) {
-            Logger.getLogger(Sentinel.class.getName()).log(Level.SEVERE, null, ex);
+            throw ex;
         }
     }
 
     public void launch()
     {
-        System.out.println(configuration);
+        listeners = new ArrayList<org.sentinel.server.Listener>();
         for(Listener listener : configuration.getListeners()) {
             try {
                 org.sentinel.configuration.Server configServer = configuration.getServer(listener.getServer());
@@ -109,6 +115,7 @@ public class Sentinel
             SentinelServer theServer = (SentinelServer) server.newInstance();
             org.sentinel.server.Listener listener = new org.sentinel.server.Listener(port, theProtocol, theServer);
             listener.start();
+            listeners.add(listener);
         }
         catch(InstantiationException ex) {
             Logger.getLogger(Sentinel.class.getName()).log(Level.SEVERE, null, ex);
@@ -117,6 +124,14 @@ public class Sentinel
         catch(IllegalAccessException ex) {
             Logger.getLogger(Sentinel.class.getName()).log(Level.SEVERE, null, ex);
             throw ex;
+        }
+    }
+    
+    public void kill()
+    {
+        // kill all the listeners
+        for(org.sentinel.server.Listener listener : listeners) {
+            listener.interrupt();
         }
     }
 

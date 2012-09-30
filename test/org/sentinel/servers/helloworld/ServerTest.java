@@ -21,6 +21,6 @@ public class ServerTest extends org.sentinel.test.cases.Server
     {
         Client client = getClient();
         String response = client.sendRawRequest("");
-        assertEquals("Hello, World!\n", response);
+        assertEquals(Server.RESPONSE, response);
     }
 }

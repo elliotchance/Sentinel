@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.sentinel.Main;
 import org.sentinel.Sentinel;
+import org.sentinel.configuration.Configuration;
 import org.sentinel.test.Client;
 
 public class Server
@@ -17,17 +18,25 @@ public class Server
     private int port;
     
     private Sentinel server;
+    
+    private String configurationFile;
 
     public Server(int port) throws Exception
     {
+        this(port, Configuration.DEFAULT_CONFIGURATION);
+    }
+
+    public Server(int port, String configurationFile) throws Exception
+    {
         this.port = port;
+        this.configurationFile = configurationFile;
         init();
     }
     
     private void init() throws Exception
     {
         // launch the server
-        URL resource = Main.class.getResource("/org/sentinel/configuration/default.xml");
+        URL resource = Main.class.getResource(configurationFile);
 		server = new Sentinel(resource.getFile());
 		server.run();
         
@@ -63,6 +72,11 @@ public class Server
     public int getPort()
     {
         return port;
+    }
+    
+    public void kill()
+    {
+        server.kill();
     }
     
 }

@@ -71,4 +71,23 @@
     nbproject/build-impl.xml file. 
 
     -->
+    
+    <property file="nbproject/coverage.properties" />
+	<target depends="init" if="have.tests" name="test-report">
+		<exec executable="java">
+			<arg value="-cp"/>
+			<arg value="coverage/emma.jar"/>
+			<arg value="emma"/>
+			<arg value="report"/>
+			<arg value="-r"/>
+			<arg value="html"/>
+			<arg value="-in"/>
+			<arg value="${coverage.coverageFile}"/>
+			<arg value="-in"/>
+			<arg value="${coverage.templateFile}"/>
+			<arg value="-sp"/>
+			<arg value="${src.dir}"/>
+		</exec>
+	</target>
+    
 </project>

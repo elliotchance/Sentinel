@@ -5,6 +5,8 @@ public class Configuration
 
     private Listeners listeners = new Listeners();
     private Servers servers = new Servers();
+    
+    public static final String DEFAULT_CONFIGURATION = "/org/sentinel/configuration/default.xml";
 
     @Override
     public String toString()

@@ -1,6 +1,7 @@
 package org.sentinel;
 
 import java.net.URL;
+import org.sentinel.configuration.Configuration;
 
 public class Main
 {
@@ -8,9 +9,9 @@ public class Main
 	/**
 	 * @param args the command line arguments
 	 */
-	public static void main(String[] args)
+	public static void main(String[] args) throws Exception
 	{
-		URL resource = Main.class.getResource("/org/sentinel/configuration/default.xml");
+		URL resource = Main.class.getResource(Configuration.DEFAULT_CONFIGURATION);
 		Sentinel s = new Sentinel(resource.getFile());
 		s.run();
 	}

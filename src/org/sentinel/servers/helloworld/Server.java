@@ -11,10 +11,12 @@ import org.sentinel.server.SentinelServer;
  */
 public class Server implements SentinelServer
 {
+    
+    public static final String RESPONSE = "Hello, World!\n";
 
     @Override
     public SentinelResponse handleRequest(SentinelRequest request)
     {
-        return new SentinelResponse("Hello, World!\n");
+        return new SentinelResponse(RESPONSE);
     }
 }
