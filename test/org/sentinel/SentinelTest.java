@@ -24,7 +24,7 @@ public class SentinelTest
         
     }
     
-    abstract class AbstractClass1
+    interface AbstractClass1
     {
     }
 

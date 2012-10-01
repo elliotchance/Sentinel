@@ -1,13 +1,9 @@
 package org.sentinel.configuration;
 
-import java.io.File;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.sentinel.test.Client;
+import org.sentinel.client.Client;
 
 public class BadConfigurationTest
 {
@@ -18,11 +14,9 @@ public class BadConfigurationTest
     
     protected Client launchServerWithConfiguration(String configurationFile) throws Exception
     {
-        // kill server if its already running
-        /*if(server != null) {
-            server.kill();
-        }*/
-        server = new org.sentinel.test.cases.ServerCase(4040, configurationFile);
+        server = new org.sentinel.test.cases.ServerCase(
+            org.sentinel.servers.helloworld.Client.class, 4040, configurationFile);
+        server.setUp();
         return server.getClient();
     }
     
@@ -34,7 +28,8 @@ public class BadConfigurationTest
             throw new Exception("Server should not have launched.");
         }
         catch(ConfigurationException ex) {
-            assertEquals("Configuration XML file is invalid: Premature end of file.", ex.getMessage());
+            assertEquals("Configuration XML file is invalid: Premature end of file.",
+                ex.getMessage());
         }
     }
     
@@ -58,7 +53,7 @@ public class BadConfigurationTest
             throw new Exception("Server should not have launched.");
         }
         catch(ConfigurationException ex) {
-            assertEquals("No such configuration server helloWorldServer", ex.getMessage());
+            assertEquals("No such configuration server 'helloWorldServer'", ex.getMessage());
         }
     }
     
@@ -82,8 +77,14 @@ public class BadConfigurationTest
             throw new Exception("Server should not have launched.");
         }
         catch(ConfigurationException ex) {
-            assertEquals("Could not load configuration file /org/sentinel/configuration/test/no-such-file.xml", ex.getMessage());
+            assertEquals("Could not find configuration file /org/sentinel/configuration/test/no-such-file.xml", ex.getMessage());
         }
+    }
+    
+    @After
+    public void tearDown()
+    {
+        server.tearDown();
     }
     
 }

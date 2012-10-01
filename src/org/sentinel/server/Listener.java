@@ -6,8 +6,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.sentinel.SentinelException;
 import org.sentinel.SentinelRuntimeException;
 
@@ -37,11 +35,9 @@ public class Listener extends Thread
     {
         // send the output to the protocol
         SentinelRequest request = protocol.handleRawRequest(clientSocket);
-        System.out.println("handleRawRequest: " + request);
         
         // the now parsed request can be sent to the real server
         SentinelResponse response = server.handleRequest(request);
-        System.out.println("handleRequest: " + response);
         
         // the rendered response goes back to the client
         OutputStream out = clientSocket.getOutputStream();
@@ -51,7 +47,6 @@ public class Listener extends Thread
         
         // close
         clientSocket.close();
-        System.out.println("close: " + clientSocket);
     }
     
     public void init() throws SentinelException
@@ -67,7 +62,6 @@ public class Listener extends Thread
     
     protected boolean acceptConnection()
     {
-        System.out.println("waiting for accept: " + serverSocket);
         try {
             Socket clientSocket;
             try {
@@ -77,9 +71,7 @@ public class Listener extends Thread
                 return true;
             }
 
-            System.out.println("accept: " + clientSocket);
             handleClient(clientSocket);
-            System.out.println("finish: " + clientSocket);
             return true;
         }
         catch(IOException ex) {
@@ -110,7 +102,6 @@ public class Listener extends Thread
             
         try {
             serverSocket.close();
-            System.out.println("Thread finished.");
         }
         catch(IOException ex) {
             throw new SentinelRuntimeException(ex.getMessage());

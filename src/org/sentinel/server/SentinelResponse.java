@@ -1,18 +1,8 @@
 package org.sentinel.server;
 
-public class SentinelResponse
+public interface SentinelResponse
 {
 
-    private String rawResponse = "";
-
-    public SentinelResponse(final String rawResponse)
-    {
-        this.rawResponse = rawResponse;
-    }
-
-    public String getRawResponse()
-    {
-        return rawResponse;
-    }
+    public String getRawResponse();
     
 }

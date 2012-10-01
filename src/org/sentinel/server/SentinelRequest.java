@@ -1,5 +1,5 @@
 package org.sentinel.server;
 
-public class SentinelRequest
+public interface SentinelRequest
 {
 }

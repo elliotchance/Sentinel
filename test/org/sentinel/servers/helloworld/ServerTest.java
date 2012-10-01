@@ -3,32 +3,30 @@ package org.sentinel.servers.helloworld;
 import java.io.IOException;
 import static org.junit.Assert.*;
 import org.junit.Test;
-import org.sentinel.test.Client;
+import org.sentinel.server.SentinelServer;
 
-public class ServerTest extends org.sentinel.test.cases.IndividualServerCases
+public class ServerTest extends org.sentinel.test.cases.ServerCase
 {
 
-    public ServerTest() throws Exception
+    public ServerTest()
     {
-        super(4040);
+        super(org.sentinel.servers.helloworld.Client.class, SentinelServer.DEFAULT_HELLOWORLD_PORT);
     }
 
     /**
      * Test the most simple server to see if we get the correct response back.
      */
     @Test
-    public void testResponse() throws IOException
+    public void testResponse() throws Exception
     {
-        Client client = getClient();
-        String response = client.sendRawRequest(null);
-        assertEquals(Server.RESPONSE, response);
+        String response = getClient().sendRawRequest("");
+        assertEquals("Hello, World!\n", response);
     }
 
     @Test
     public void testPrematureExit() throws IOException
     {
-        Client client = getClient();
-        client.close();
+        getClient().close();
     }
     
 }

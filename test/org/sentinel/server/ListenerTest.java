@@ -19,7 +19,7 @@ public class ListenerTest
     class ListenerMock extends Listener
     {
 
-        public ListenerMock(int port, SentinelProtocol protocol, SentinelServer server)
+        ListenerMock(int port, SentinelProtocol protocol, SentinelServer server)
         {
             super(port, protocol, server);
         }

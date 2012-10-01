@@ -2,8 +2,10 @@
 <sentinel>
     <listners>
         <listener port="4040" server="helloWorldServer"></listener>
+        <listener port="4041" server="httpServer"></listener>
     </listners>
     <servers>
         <server name="helloWorldServer" protocol="org.sentinel.servers.helloworld.Protocol" server="org.sentinel.servers.helloworld.Server"></server>
+        <server name="httpServer" protocol="org.sentinel.servers.http.Protocol" server="org.sentinel.servers.http.Server"></server>
     </servers>
 </sentinel>

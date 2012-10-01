@@ -3,15 +3,12 @@ package org.sentinel;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.sentinel.configuration.Configuration;
 import org.sentinel.configuration.ConfigurationException;
 import org.sentinel.configuration.Listener;
-import org.sentinel.configuration.NoSuchConfigurationServerException;
 import org.sentinel.configuration.Server;
 import org.sentinel.server.SentinelProtocol;
 import org.sentinel.server.SentinelServer;
@@ -139,13 +136,10 @@ public class Sentinel
     public void stopGracefully()
     {
         // tell each listener to shutdown
-        for(org.sentinel.server.Listener listener : listeners) {
-            //try {
+        if(listeners != null) {
+            for(org.sentinel.server.Listener listener : listeners) {
                 listener.stopGracefully();
-            //}
-            //catch(InterruptedException ex) {
-            //    throw new SentinelRuntimeException(ex.getMessage());
-            //}
+            }
         }
     }
     
