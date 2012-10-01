@@ -2,48 +2,30 @@ package org.sentinel.configuration;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.sentinel.test.Client;
-import org.xml.sax.SAXParseException;
 
 public class ConfigurationTest
 {
-    
-    protected final String badXmlPackage = "/org/sentinel/configuration/test";
-    
-    protected org.sentinel.test.cases.Server server = null;
-    
-    protected Client launchServerWithConfiguration(String configurationFile) throws Exception
-    {
-        // kill server if its already running
-        if(server != null) {
-            server.kill();
-        }
-        server = new org.sentinel.test.cases.Server(4040, configurationFile);
-        return server.getClient();
-    }
-    
+
     @Test
-    public void testBlankConfiguration() throws Exception
+    public void testGetListeners()
     {
-        try {
-            Client client = launchServerWithConfiguration(badXmlPackage + "/blank.xml");
-            throw new Exception("Server should not have launched.");
-        }
-        catch(SAXParseException ex) {
-            assertEquals("Premature end of file.", ex.getMessage());
-        }
+        Configuration configuration = new Configuration();
+        assertEquals(0, configuration.getListeners().size());
+        
+        configuration.addListener(new Listener(1234, "bla"));
+        assertEquals(1, configuration.getListeners().size());
+        assertEquals(1234, configuration.getListeners().get(0).getPort());
+        assertEquals("bla", configuration.getListeners().get(0).getServer());
     }
-    
+
     @Test
-    public void testIncorrectRootConfiguration() throws Exception
+    public void testGetServers()
     {
-        try {
-            Client client = launchServerWithConfiguration(badXmlPackage + "/incorrect-root.xml");
-            throw new Exception("Server should not have launched.");
-        }
-        catch(ConfigurationException ex) {
-            assertEquals("Root node of configuration file must be 'sentinel'.", ex.getMessage());
-        }
+        Configuration configuration = new Configuration();
+        assertEquals(0, configuration.getServers().size());
+        
+        configuration.addServer(new Server());
+        assertEquals(1, configuration.getServers().size());
     }
     
 }

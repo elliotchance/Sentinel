@@ -15,8 +15,10 @@ public class Server implements SentinelServer
     public static final String RESPONSE = "Hello, World!\n";
 
     @Override
-    public SentinelResponse handleRequest(SentinelRequest request)
+    public SentinelResponse handleRequest(SentinelRequest originalRequest)
     {
+        Request request = (Request) originalRequest;
         return new SentinelResponse(RESPONSE);
     }
+    
 }

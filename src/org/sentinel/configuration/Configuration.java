@@ -8,12 +8,6 @@ public class Configuration
     
     public static final String DEFAULT_CONFIGURATION = "/org/sentinel/configuration/default.xml";
 
-    @Override
-    public String toString()
-    {
-        return "Configuration{" + "listeners=" + listeners + ", servers=" + servers + '}';
-    }
-
     public void addListener(Listener listener)
     {
         listeners.add(listener);

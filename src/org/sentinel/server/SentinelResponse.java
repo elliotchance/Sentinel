@@ -14,9 +14,5 @@ public class SentinelResponse
     {
         return rawResponse;
     }
-
-    public void setRawResponse(String rawResponse)
-    {
-        this.rawResponse = rawResponse;
-    }
+    
 }

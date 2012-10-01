@@ -5,7 +5,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.sentinel.test.Client;
 
-public class ServerTest extends org.sentinel.test.cases.Server
+public class ServerTest extends org.sentinel.test.cases.IndividualServerCases
 {
 
     public ServerTest() throws Exception
@@ -20,7 +20,15 @@ public class ServerTest extends org.sentinel.test.cases.Server
     public void testResponse() throws IOException
     {
         Client client = getClient();
-        String response = client.sendRawRequest("");
+        String response = client.sendRawRequest(null);
         assertEquals(Server.RESPONSE, response);
     }
+
+    @Test
+    public void testPrematureExit() throws IOException
+    {
+        Client client = getClient();
+        client.close();
+    }
+    
 }

@@ -17,24 +17,9 @@ public class Listener
         return port;
     }
 
-    public void setPort(int port)
-    {
-        this.port = port;
-    }
-
     public String getServer()
     {
         return server;
     }
-
-    public void setServer(String server)
-    {
-        this.server = server;
-    }
-
-    @Override
-    public String toString()
-    {
-        return "Listener{" + "port=" + port + ", server=" + server + '}';
-    }
+    
 }

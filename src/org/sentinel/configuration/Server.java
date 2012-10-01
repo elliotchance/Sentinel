@@ -3,9 +3,13 @@ package org.sentinel.configuration;
 public class Server
 {
 
-    private String name;
-    private Class protocol;
-    private Class server;
+    private String name = null;
+    private Class protocol = null;
+    private Class server = null;
+    
+    public Server()
+    {
+    }
 
     public Server(String name, Class protocol, Class server)
     {
@@ -43,10 +47,5 @@ public class Server
     {
         this.server = server;
     }
-
-    @Override
-    public String toString()
-    {
-        return "Server{" + "name=" + name + ", protocol=" + protocol + ", server=" + server + '}';
-    }
+    
 }

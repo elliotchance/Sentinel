@@ -8,9 +8,10 @@ import org.junit.BeforeClass;
 import org.sentinel.Main;
 import org.sentinel.Sentinel;
 import org.sentinel.configuration.Configuration;
+import org.sentinel.configuration.ConfigurationException;
 import org.sentinel.test.Client;
 
-public class Server
+public class ServerCase
 {
     
     private Client client = null;
@@ -21,12 +22,12 @@ public class Server
     
     private String configurationFile;
 
-    public Server(int port) throws Exception
+    public ServerCase(int port) throws Exception
     {
         this(port, Configuration.DEFAULT_CONFIGURATION);
     }
 
-    public Server(int port, String configurationFile) throws Exception
+    public ServerCase(int port, String configurationFile) throws Exception
     {
         this.port = port;
         this.configurationFile = configurationFile;
@@ -37,8 +38,16 @@ public class Server
     {
         // launch the server
         URL resource = Main.class.getResource(configurationFile);
+        if(resource == null) {
+            throw new ConfigurationException("Could not load configuration file " + configurationFile);
+        }
 		server = new Sentinel(resource.getFile());
 		server.run();
+        
+        // wait for server to be ready
+        while(!server.isReady()) {
+            System.out.println("Not ready.");
+        }
         
         // setup the client
         client = new Client("localhost", port);
@@ -74,9 +83,9 @@ public class Server
         return port;
     }
     
-    public void kill()
+    public void stopGracefully()
     {
-        server.kill();
+        server.stopGracefully();
     }
     
 }

@@ -1,5 +1,7 @@
 package org.sentinel.servers.helloworld;
 
+import java.io.IOException;
+import java.net.Socket;
 import org.sentinel.server.SentinelProtocol;
 import org.sentinel.server.SentinelRequest;
 
@@ -7,9 +9,10 @@ public class Protocol implements SentinelProtocol
 {
 
     @Override
-    public SentinelRequest handleRawRequest(final String input)
+    public SentinelRequest handleRawRequest(final Socket socket) throws IOException
     {
-        // since we don't care about what input we get the SentinelRequest can effectivly do nothing
-        return new SentinelRequest();
+        // totally ignore any input sent
+        return new Request();
     }
+    
 }

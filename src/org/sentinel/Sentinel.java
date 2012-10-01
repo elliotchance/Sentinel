@@ -26,22 +26,51 @@ public class Sentinel
     private String configurationFile = null;
     private Configuration configuration = null;
     private ArrayList<org.sentinel.server.Listener> listeners = null;
+    private boolean ready = false;
+
+    public Sentinel()
+    {
+    }
 
     public Sentinel(String configurationFile)
     {
         this.configurationFile = configurationFile;
     }
-
-    public void run() throws Exception
+    
+    protected DocumentBuilderFactory getDocumentBuilderFactoryInstance()
+        throws ParserConfigurationException
+    {
+        return DocumentBuilderFactory.newInstance();
+    }
+    
+    /**
+     * Read a configuration file.
+     */
+    public Document parseConfigurationFile(File configurationFile) throws ConfigurationException
     {
         try {
-            // read the configuration file
-            File fXmlFile = new File(configurationFile);
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilderFactory dbFactory = getDocumentBuilderFactoryInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document doc = dBuilder.parse(fXmlFile);
+            Document doc = dBuilder.parse(configurationFile);
             doc.getDocumentElement().normalize();
+            return doc;
+        }
+        catch(SAXException ex) {
+            throw new ConfigurationException("Configuration XML file is invalid: " + ex.getMessage());
+        }
+        catch(ParserConfigurationException ex) {
+            throw new ConfigurationException(ex.getMessage());
+        }
+        catch(IOException ex) {
+            throw new ConfigurationException(ex.getMessage());
+        }
+    }
 
+    public void run() throws SentinelException
+    {
+        try {
+            Document doc = parseConfigurationFile(new File(configurationFile));
+            
             // build internal configuration
             if(!doc.getDocumentElement().getNodeName().equals("sentinel")) {
                 throw new ConfigurationException("Root node of configuration file must be 'sentinel'.");
@@ -76,63 +105,53 @@ public class Sentinel
             launch();
         }
         catch(ClassNotFoundException ex) {
-            throw ex;
-        }
-        catch(SAXException ex) {
-            throw ex;
-        }
-        catch(ParserConfigurationException ex) {
-            throw ex;
-        }
-        catch(IOException ex) {
-            throw ex;
+            throw new ConfigurationException("No such class " + ex.getMessage());
         }
     }
 
-    public void launch()
+    public void launch() throws SentinelException
     {
         listeners = new ArrayList<org.sentinel.server.Listener>();
         for(Listener listener : configuration.getListeners()) {
-            try {
-                org.sentinel.configuration.Server configServer = configuration.getServer(listener.getServer());
-                launchListener(listener, configServer.getProtocol(), configServer.getServer());
-            }
-            catch(NoSuchConfigurationServerException ex) {
-                Logger.getLogger(Sentinel.class.getName()).log(Level.SEVERE, null, ex);
-                return;
-            }
-            catch(Exception ex) {
-                Logger.getLogger(Sentinel.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            org.sentinel.configuration.Server configServer = configuration.getServer(listener.getServer());
+            launchListener(listener, configServer.getProtocol(), configServer.getServer());
         }
+        ready = true;
     }
     
-    public void launchListener(Listener listenerDefinition, Class protocol, Class server) throws Exception
+    public void launchListener(Listener listenerDefinition, Class protocol, Class server) throws
+        SentinelException
     {
         try {
             int port = listenerDefinition.getPort();
             SentinelProtocol theProtocol = (SentinelProtocol) protocol.newInstance();
             SentinelServer theServer = (SentinelServer) server.newInstance();
             org.sentinel.server.Listener listener = new org.sentinel.server.Listener(port, theProtocol, theServer);
+            listener.init();
             listener.start();
             listeners.add(listener);
         }
-        catch(InstantiationException ex) {
-            Logger.getLogger(Sentinel.class.getName()).log(Level.SEVERE, null, ex);
-            throw ex;
-        }
-        catch(IllegalAccessException ex) {
-            Logger.getLogger(Sentinel.class.getName()).log(Level.SEVERE, null, ex);
-            throw ex;
+        catch(Exception ex) {
+            throw new SentinelException("Can not instantiate: " + ex.getMessage());
         }
     }
     
-    public void kill()
+    public void stopGracefully()
     {
-        // kill all the listeners
+        // tell each listener to shutdown
         for(org.sentinel.server.Listener listener : listeners) {
-            listener.interrupt();
+            //try {
+                listener.stopGracefully();
+            //}
+            //catch(InterruptedException ex) {
+            //    throw new SentinelRuntimeException(ex.getMessage());
+            //}
         }
+    }
+    
+    public boolean isReady()
+    {
+        return ready;
     }
 
 }
