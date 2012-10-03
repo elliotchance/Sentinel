@@ -29,5 +29,14 @@ public class ResponseTest
     {
         Response.parse("HTTP/1.1 200 OK\nContent-Length: 3\n\nabc");
     }
+    
+    @Test
+    public void testWrite()
+    {
+        Response response = new Response();
+        response.write("something");
+        response.write("else");
+        assertEquals("somethingelse", new String(response.getBody()));
+    }
 
 }

@@ -17,5 +17,10 @@ public class Response implements SentinelResponse
     {
         return rawResponse;
     }
+
+    @Override
+    public void write(String data)
+    {
+    }
     
 }

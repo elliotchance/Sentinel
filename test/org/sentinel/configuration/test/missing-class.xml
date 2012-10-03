@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sentinel>
-    <listners>
+    <listeners>
         <listener port="4040" server="helloWorldServer"></listener>
-    </listners>
+    </listeners>
     <servers>
-        <server name="helloWorldServer" protocol="no.such.protocol" server="no.such.class"></server>
+        <server name="helloWorldServer"
+                protocol="no.such.protocol"
+                server="no.such.class"
+                configuration="no.such.class">
+        </server>
     </servers>
 </sentinel>

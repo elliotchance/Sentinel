@@ -29,4 +29,14 @@ public class Request implements SentinelRequest
         this.body = body;
     }
     
+    public String getParam(String name)
+    {
+        return null;
+    }
+    
+    public String getParam(String name, String defaultValue)
+    {
+        return defaultValue;
+    }
+    
 }

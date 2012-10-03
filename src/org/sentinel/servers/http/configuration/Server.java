@@ -1,12 +1,14 @@
-package org.sentinel.configuration;
+package org.sentinel.servers.http.configuration;
 
-import java.util.HashMap;
+import org.sentinel.configuration.ConfigurationException;
+import org.sentinel.configuration.ConfigurationNode;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class Servers extends HashMap<String, Server> implements ConfigurationParser,
-    ConfigurationNode
+public class Server extends org.sentinel.configuration.Server implements ConfigurationNode
 {
+    
+    protected Applications applications;
 
     @Override
     public ConfigurationNode parseRoot(Node node) throws ConfigurationException
@@ -21,10 +23,9 @@ public class Servers extends HashMap<String, Server> implements ConfigurationPar
                 continue;
             }
             
-            // <server>
-            if(child.getNodeName().equals("server")) {
-                Server server = (Server) new Server().parseRoot(child);
-                put(server.getName(), server);
+            // <applications>
+            if(child.getNodeName().equals("applications")) {
+                applications = (Applications) new Applications().parseRoot(child);
                 continue;
             }
             
@@ -37,11 +38,11 @@ public class Servers extends HashMap<String, Server> implements ConfigurationPar
     @Override
     public String toString()
     {
-        String r = "<servers>";
-        for(Server server : values()) {
-            r += server;
+        String base = super.toString();
+        if(applications != null) {
+            base = base.substring(0, base.length() - 2) + ">" + applications.toString() + "</server>";
         }
-        return r + "</servers>";
+        return base;
     }
     
 }

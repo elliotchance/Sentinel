@@ -1,11 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sentinel>
-    <listners>
+    <listeners>
         <listener port="4040" server="helloWorldServer"></listener>
         <listener port="4041" server="httpServer"></listener>
-    </listners>
+    </listeners>
     <servers>
-        <server name="helloWorldServer" protocol="org.sentinel.servers.helloworld.Protocol" server="org.sentinel.servers.helloworld.Server"></server>
-        <server name="httpServer" protocol="org.sentinel.servers.http.Protocol" server="org.sentinel.servers.http.Server"></server>
+        <server name="helloWorldServer"
+                configuration="org.sentinel.servers.helloworld.configuration.Server"
+                protocol="org.sentinel.servers.helloworld.Protocol"
+                server="org.sentinel.servers.helloworld.Server">
+        </server>
+        <server name="httpServer"
+                configuration="org.sentinel.servers.http.configuration.Server"
+                protocol="org.sentinel.servers.http.Protocol"
+                server="org.sentinel.servers.http.Server">
+            <applications>
+                <application name="SimpleApp"
+                             application="org.sentinel.example.simpleapp.SimpleApp"
+                             prefix="/simpleapp">
+                </application>
+            </applications>
+        </server>
     </servers>
 </sentinel>

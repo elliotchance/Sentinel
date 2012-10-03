@@ -5,7 +5,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import static org.junit.Assert.*;
 import org.junit.Test;
-import org.sentinel.configuration.Configuration;
 import org.sentinel.configuration.ConfigurationException;
 import org.sentinel.configuration.Listener;
 
@@ -33,7 +32,7 @@ public class SentinelTest
     {
         try {
             SentinelMock1 mockSentinel = new SentinelMock1();
-            mockSentinel.parseConfigurationFile(new File(Configuration.DEFAULT_CONFIGURATION));
+            mockSentinel.parseConfigurationFile(new File(org.sentinel.configuration.Sentinel.DEFAULT_CONFIGURATION));
             fail("ConfigurationException should have been thrown.");
         }
         catch(ConfigurationException ex) {
@@ -46,7 +45,7 @@ public class SentinelTest
     {
         try {
             Sentinel sentinel = new Sentinel();
-            sentinel.parseConfigurationFile(new File(Configuration.DEFAULT_CONFIGURATION + "-bad"));
+            sentinel.parseConfigurationFile(new File(org.sentinel.configuration.Sentinel.DEFAULT_CONFIGURATION + "-bad"));
             fail("ConfigurationException should have been thrown.");
         }
         catch(ConfigurationException ex) {

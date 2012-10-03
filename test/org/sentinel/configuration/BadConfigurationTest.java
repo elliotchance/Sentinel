@@ -15,7 +15,10 @@ public class BadConfigurationTest
     protected Client launchServerWithConfiguration(String configurationFile) throws Exception
     {
         server = new org.sentinel.test.cases.ServerCase(
-            org.sentinel.servers.helloworld.Client.class, 4040, configurationFile);
+            org.sentinel.servers.helloworld.Client.class,
+            4040,
+            configurationFile
+        );
         server.setUp();
         return server.getClient();
     }
@@ -65,7 +68,7 @@ public class BadConfigurationTest
             throw new Exception("Server should not have launched.");
         }
         catch(ConfigurationException ex) {
-            assertEquals("No such class no.such.protocol", ex.getMessage());
+            assertEquals("No such class 'no.such.protocol'", ex.getMessage());
         }
     }
     
@@ -78,6 +81,18 @@ public class BadConfigurationTest
         }
         catch(ConfigurationException ex) {
             assertEquals("Could not find configuration file /org/sentinel/configuration/test/no-such-file.xml", ex.getMessage());
+        }
+    }
+    
+    @Test
+    public void testNoListeners() throws Exception
+    {
+        try {
+            Client client = launchServerWithConfiguration(badXmlPackage + "/no-listeners.xml");
+            throw new Exception("Server should not have launched.");
+        }
+        catch(ConfigurationException ex) {
+            assertEquals("There are no listeners configured.", ex.getMessage());
         }
     }
     

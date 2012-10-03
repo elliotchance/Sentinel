@@ -7,21 +7,21 @@ public class ConfigurationTest
 {
 
     @Test
-    public void testGetListeners()
+    public void testListeners()
     {
-        Configuration configuration = new Configuration();
+        Sentinel configuration = Sentinel.debugInstance();
         assertEquals(0, configuration.getListeners().size());
         
         configuration.addListener(new Listener(1234, "bla"));
         assertEquals(1, configuration.getListeners().size());
-        assertEquals(1234, configuration.getListeners().get(0).getPort());
-        assertEquals("bla", configuration.getListeners().get(0).getServer());
+        assertEquals(1234, configuration.getListeners().get(1234).getPort());
+        assertEquals("bla", configuration.getListeners().get(1234).getServer());
     }
 
     @Test
-    public void testGetServers()
+    public void testServers()
     {
-        Configuration configuration = new Configuration();
+        Sentinel configuration = Sentinel.debugInstance();
         assertEquals(0, configuration.getServers().size());
         
         configuration.addServer(new Server());

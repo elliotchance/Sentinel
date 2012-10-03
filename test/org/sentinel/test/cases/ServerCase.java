@@ -8,7 +8,6 @@ import org.junit.BeforeClass;
 import org.sentinel.Main;
 import org.sentinel.Sentinel;
 import org.sentinel.client.Client;
-import org.sentinel.configuration.Configuration;
 import org.sentinel.configuration.ConfigurationException;
 import org.sentinel.server.SentinelServer;
 
@@ -27,12 +26,12 @@ public class ServerCase
     
     public ServerCase(Class clientClass)
     {
-        this(clientClass, SentinelServer.DEFAULT_PORT, Configuration.DEFAULT_CONFIGURATION);
+        this(clientClass, SentinelServer.DEFAULT_PORT, org.sentinel.configuration.Sentinel.DEFAULT_CONFIGURATION);
     }
     
     public ServerCase(Class clientClass, int port)
     {
-        this(clientClass, port, Configuration.DEFAULT_CONFIGURATION);
+        this(clientClass, port, org.sentinel.configuration.Sentinel.DEFAULT_CONFIGURATION);
     }
     
     public ServerCase(Class clientClass, int port, String configurationFile)

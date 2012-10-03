@@ -69,5 +69,11 @@ public class Response implements SentinelResponse
         
         return response;
     }
+
+    @Override
+    public void write(String data)
+    {
+        body = (new String(body) + data).getBytes();
+    }
     
 }

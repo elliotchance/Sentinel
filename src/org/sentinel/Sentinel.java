@@ -6,34 +6,44 @@ import java.util.ArrayList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import org.sentinel.configuration.Configuration;
 import org.sentinel.configuration.ConfigurationException;
 import org.sentinel.configuration.Listener;
-import org.sentinel.configuration.Server;
+import org.sentinel.configuration.NoSuchConfigurationServerException;
 import org.sentinel.server.SentinelProtocol;
 import org.sentinel.server.SentinelServer;
 import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public class Sentinel
 {
 
     private String configurationFile = null;
-    private Configuration configuration = null;
+    private org.sentinel.configuration.Sentinel configuration = null;
     private ArrayList<org.sentinel.server.Listener> listeners = null;
     private boolean ready = false;
 
+    /**
+     * Empty constructor. Mostly used for debugging.
+     */
     public Sentinel()
     {
     }
 
+    /**
+     * Create a new Sentinel instance with the XML configuration file. This will not start the
+     * listeners themselves.
+     * @param configurationFile Path to the configuration file.
+     */
     public Sentinel(String configurationFile)
     {
         this.configurationFile = configurationFile;
     }
     
+    /**
+     * This method is here for JUnit. It is overridden for some tests.
+     * @return A new instance of DocumentBuilderFactory
+     * @throws ParserConfigurationException
+     */
     protected DocumentBuilderFactory getDocumentBuilderFactoryInstance()
         throws ParserConfigurationException
     {
@@ -65,52 +75,19 @@ public class Sentinel
 
     public void run() throws SentinelException
     {
-        try {
-            Document doc = parseConfigurationFile(new File(configurationFile));
+        // parse configuration file
+        Document doc = parseConfigurationFile(new File(configurationFile));
+        configuration = new org.sentinel.configuration.Sentinel();
+        configuration.parseRoot(doc.getFirstChild());
             
-            // build internal configuration
-            if(!doc.getDocumentElement().getNodeName().equals("sentinel")) {
-                throw new ConfigurationException("Root node of configuration file must be 'sentinel'.");
-            }
-            configuration = new Configuration();
-
-            // listeners
-            NodeList listeners = doc.getDocumentElement().getElementsByTagName("listener");
-            for(int i = 0; i < listeners.getLength(); ++i) {
-                NamedNodeMap listenerAttributes = listeners.item(i).getAttributes();
-
-                int port = Integer.valueOf(listenerAttributes.getNamedItem("port").getNodeValue());
-                String server = listenerAttributes.getNamedItem("server").getNodeValue();
-
-                Listener listener = new Listener(port, server);
-                configuration.addListener(listener);
-            }
-
-            // servers
-            NodeList servers = doc.getDocumentElement().getElementsByTagName("server");
-            for(int i = 0; i < servers.getLength(); ++i) {
-                NamedNodeMap serverAttributes = servers.item(i).getAttributes();
-
-                String name = serverAttributes.getNamedItem("name").getNodeValue();
-                Class protocol = Class.forName(serverAttributes.getNamedItem("protocol").getNodeValue());
-                Class serverClass = Class.forName(serverAttributes.getNamedItem("server").getNodeValue());
-
-                Server server = new Server(name, protocol, serverClass);
-                configuration.addServer(server);
-            }
-
-            launch();
-        }
-        catch(ClassNotFoundException ex) {
-            throw new ConfigurationException("No such class " + ex.getMessage());
-        }
+        launch();
     }
 
     public void launch() throws SentinelException
     {
         listeners = new ArrayList<org.sentinel.server.Listener>();
-        for(Listener listener : configuration.getListeners()) {
-            org.sentinel.configuration.Server configServer = configuration.getServer(listener.getServer());
+        for(Listener listener : configuration.getListeners().values()) {
+            org.sentinel.configuration.Server configServer = configuration.getServers().get(listener.getServer());
             launchListener(listener, configServer.getProtocol(), configServer.getServer());
         }
         ready = true;

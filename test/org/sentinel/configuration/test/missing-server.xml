@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <sentinel>
-    <listners>
+    <listeners>
         <listener port="4040" server="helloWorldServer"></listener>
-    </listners>
+    </listeners>
     <servers>
-        <server name="helloWorldServer-bad" protocol="org.sentinel.servers.helloworld.Protocol" server="org.sentinel.servers.helloworld.Server"></server>
+        <server name="helloWorldServer-bad"
+                protocol="org.sentinel.servers.helloworld.Protocol"
+                server="org.sentinel.servers.helloworld.Server"
+                configuration="org.sentinel.servers.helloworld.configuration.Server">
+        </server>
     </servers>
 </sentinel>
