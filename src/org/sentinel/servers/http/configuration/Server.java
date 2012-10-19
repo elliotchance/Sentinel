@@ -44,5 +44,10 @@ public class Server extends org.sentinel.configuration.Server implements Configu
         }
         return base;
     }
+
+    public Applications getApplications()
+    {
+        return applications;
+    }
     
 }

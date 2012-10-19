@@ -10,10 +10,9 @@ public class ServerTest extends ConfigurationParserCase
     @Test
     public void testInstantiation()
     {
-        Server server = new Server("abc", java.lang.Integer.class, java.lang.Float.class, java.lang.Double.class);
+        Server server = new Server("abc", java.lang.Integer.class, java.lang.Double.class);
         assertEquals("abc", server.getName());
         assertEquals(java.lang.Integer.class, server.getProtocol());
-        assertEquals(java.lang.Float.class, server.getServer());
         assertEquals(java.lang.Double.class, server.getConfiguration());
     }
 
@@ -45,15 +44,6 @@ public class ServerTest extends ConfigurationParserCase
     }
 
     @Test
-    public void testServer()
-    {
-        Class klass = this.getClass();
-        Server instance = new Server();
-        instance.setServer(klass);
-        assertEquals(klass, instance.getServer());
-    }
-
-    @Test
     public void testAttributeName()
     {
         assertConfigurationException(
@@ -74,16 +64,6 @@ public class ServerTest extends ConfigurationParserCase
     }
 
     @Test
-    public void testAttributeServer()
-    {
-        assertConfigurationException(
-            new Server(),
-            "<server name=\"a\" protocol=\"java.lang.Integer\"/>",
-            "You must specify the server for <server>"
-        );
-    }
-
-    @Test
     public void testAttributeConfiguration()
     {
         assertConfigurationException(
@@ -99,11 +79,10 @@ public class ServerTest extends ConfigurationParserCase
         Server server = new Server();
         server.setConfiguration(java.lang.Integer.class);
         server.setProtocol(java.lang.Float.class);
-        server.setServer(java.lang.Double.class);
         server.setName("abc");
         
         assertEquals(server.toString(),
-            "<server configuration=\"java.lang.Integer\" name=\"abc\" protocol=\"java.lang.Float\" server=\"java.lang.Double\"/>");
+            "<server configuration=\"java.lang.Integer\" name=\"abc\" protocol=\"java.lang.Float\"/>");
     }
     
 }

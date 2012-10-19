@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import org.sentinel.client.ClientException;
+import org.sentinel.servers.http.protocol.HTTPHeader;
+import org.sentinel.servers.http.protocol.HTTPRequestHeaders;
+import org.sentinel.servers.http.protocol.HTTPResponse;
 
 public class Client extends org.sentinel.client.Client
 {
@@ -36,18 +39,17 @@ public class Client extends org.sentinel.client.Client
         }
     }
     
-    public Response sendRequest(String data) throws ClientException
+    public HTTPResponse sendRequest(String path, String data) throws ClientException
     {
         // build the headers
-        HTTPRequestHeaders headers = new HTTPRequestHeaders("GET / HTTP/1.1");
+        HTTPRequestHeaders headers = new HTTPRequestHeaders("GET " + path + " HTTP/1.1");
         headers.addOrReplace(new HTTPHeader("content-length", data.length()));
 
         // sent request
-        System.out.println(headers.toString() + data);
         byte[] result = sendRawRequest((headers.toString() + data).getBytes());
 
         // process response
-        Response response = Response.parse(new String(result));
+        HTTPResponse response = HTTPResponse.parse(new String(result));
         return response;
     }
     

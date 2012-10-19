@@ -7,13 +7,11 @@
     <servers>
         <server name="helloWorldServer"
                 configuration="org.sentinel.servers.helloworld.configuration.Server"
-                protocol="org.sentinel.servers.helloworld.Protocol"
-                server="org.sentinel.servers.helloworld.Server">
+                protocol="org.sentinel.servers.helloworld.Protocol">
         </server>
         <server name="httpServer"
                 configuration="org.sentinel.servers.http.configuration.Server"
-                protocol="org.sentinel.servers.http.Protocol"
-                server="org.sentinel.servers.http.Server">
+                protocol="org.sentinel.servers.http.protocol.Protocol">
             <applications>
                 <application name="SimpleApp"
                              application="org.sentinel.example.simpleapp.SimpleApp"

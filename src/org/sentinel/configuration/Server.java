@@ -8,18 +8,16 @@ public class Server implements ConfigurationParser, ConfigurationNode
 
     protected String name = null;
     protected Class protocol = null;
-    protected Class server = null;
     protected Class configuration = null;
     
     public Server()
     {
     }
 
-    public Server(String name, Class protocol, Class server, Class configuration)
+    public Server(String name, Class protocol, Class configuration)
     {
         this.name = name;
         this.protocol = protocol;
-        this.server = server;
         this.configuration = configuration;
     }
 
@@ -41,16 +39,6 @@ public class Server implements ConfigurationParser, ConfigurationNode
     public void setProtocol(Class protocol)
     {
         this.protocol = protocol;
-    }
-
-    public Class getServer()
-    {
-        return server;
-    }
-
-    public void setServer(Class server)
-    {
-        this.server = server;
     }
 
     public Class getConfiguration()
@@ -93,13 +81,6 @@ public class Server implements ConfigurationParser, ConfigurationNode
             }
             protocol = Class.forName(protocolValue.getNodeValue());
             
-            // server
-            Node serverValue = serverAttributes.getNamedItem("server");
-            if(serverValue == null) {
-                throw new ConfigurationException("You must specify the server for <server>");
-            }
-            server = Class.forName(serverValue.getNodeValue());
-            
             // configuration
             Node configurationValue = serverAttributes.getNamedItem("configuration");
             if(configurationValue == null) {
@@ -114,7 +95,6 @@ public class Server implements ConfigurationParser, ConfigurationNode
             parser.setConfiguration(configuration);
             parser.setName(name);
             parser.setProtocol(protocol);
-            parser.setServer(server);
             
             return parser.parseRoot(node);
         }
@@ -130,8 +110,7 @@ public class Server implements ConfigurationParser, ConfigurationNode
     public String toString()
     {
         return "<server configuration=\"" + configuration.getCanonicalName() + "\" name=\"" +
-            name + "\" protocol=\"" + protocol.getCanonicalName() + "\" server=\"" +
-            server.getCanonicalName() + "\"/>";
+            name + "\" protocol=\"" + protocol.getCanonicalName() + "\"/>";
     }
     
 }

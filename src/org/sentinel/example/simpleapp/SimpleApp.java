@@ -1,24 +1,32 @@
 package org.sentinel.example.simpleapp;
 
-import org.sentinel.server.Application;
-import org.sentinel.server.SentinelRequest;
-import org.sentinel.server.SentinelResponse;
-import org.sentinel.servers.http.Request;
+import java.io.IOException;
+import org.sentinel.framework.Application;
+import org.sentinel.servers.http.protocol.HTTPRequest;
+import org.sentinel.servers.http.protocol.HTTPResponse;
 
-public class SimpleApp implements Application
+public class SimpleApp extends Application
 {
 
     @Override
-    public void handleRequest(SentinelRequest request, SentinelResponse response)
+    public void handleRequest(HTTPRequest request, HTTPResponse response)
+        throws IOException
     {
-        // first cast the request into something we can use
-        Request req = (Request) request;
+        // initialise the application and framework
+        super.handleRequest(request, response);
         
-        // in this simple app we get the name of the person and send back a greeting
-        String name = req.getParam("name", "nobody");
-        String template = "<html><head><title>SimpleApp</title><head><body>%name%</body></html>";
+        // get the persons name
+        String name = getParam("name");
         
-        response.write(template);
+        // if there is no name then we need to ask for it
+        if(name == null) {
+            response.write(getTemplate("index.html"));
+            return;
+        }
+        
+        // if we have a name then greet the person
+        String output = getTemplate("welcome.html").replaceFirst("%name%", name);
+        response.write(output);
     }
     
 }

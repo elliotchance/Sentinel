@@ -1,18 +1,24 @@
 package org.sentinel.servers.helloworld;
 
 import java.io.IOException;
-import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.SocketChannel;
 import org.sentinel.server.SentinelProtocol;
-import org.sentinel.server.SentinelRequest;
 
-public class Protocol implements SentinelProtocol
+public class Protocol extends SentinelProtocol
 {
 
     @Override
-    public SentinelRequest handleRawRequest(final Socket socket) throws IOException
+    public void handleRead(SelectionKey key, byte[] data) throws IOException
     {
         // totally ignore any input sent
-        return new Request();
+        
+        key.interestOps(SelectionKey.OP_WRITE);
+
+        SocketChannel socketChannel = (SocketChannel) key.channel();
+        socketChannel.write(ByteBuffer.wrap("Hello, World!\n".getBytes()));
+        socketChannel.close();
     }
     
 }

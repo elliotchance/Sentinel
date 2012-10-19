@@ -19,12 +19,11 @@ public class ServerTest extends ConfigurationParserCase
         Server server = new Server();
         server.setConfiguration(java.lang.Integer.class);
         server.setProtocol(java.lang.Float.class);
-        server.setServer(java.lang.Double.class);
         server.setName("abc");
         
         assertEquals(server.toString(),
-            "<server configuration=\"java.lang.Integer\" name=\"abc\" protocol=\"java.lang.Float\" "
-            + "server=\"java.lang.Double\"/>");
+            "<server configuration=\"java.lang.Integer\" name=\"abc\" protocol=\"java.lang.Float\""
+            + "/>");
     }
 
     @Test
@@ -33,7 +32,6 @@ public class ServerTest extends ConfigurationParserCase
         Server server = new Server();
         server.setConfiguration(java.lang.Integer.class);
         server.setProtocol(java.lang.Float.class);
-        server.setServer(java.lang.Double.class);
         server.setName("abc");
         
         Application application = new Application("app", java.lang.Integer.class, "/");
@@ -41,8 +39,8 @@ public class ServerTest extends ConfigurationParserCase
         server.applications.add(application);
         
         assertEquals(server.toString(),
-            "<server configuration=\"java.lang.Integer\" name=\"abc\" protocol=\"java.lang.Float\" "
-            + "server=\"java.lang.Double\"><applications>" +
+            "<server configuration=\"java.lang.Integer\" name=\"abc\" protocol=\"java.lang.Float\""
+            + "><applications>" +
             application.toString() + "</applications></server>");
     }
 

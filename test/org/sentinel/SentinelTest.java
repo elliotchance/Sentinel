@@ -1,6 +1,7 @@
 package org.sentinel;
 
 import java.io.File;
+import java.util.ArrayList;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import static org.junit.Assert.*;
@@ -59,8 +60,12 @@ public class SentinelTest
     {
         try {
             Sentinel sentinel = new Sentinel();
+            sentinel.listeners = new ArrayList<org.sentinel.server.Listener>();
             Listener listener = new Listener(1234, "bla");
-            sentinel.launchListener(listener, AbstractClass1.class, AbstractClass1.class);
+            org.sentinel.configuration.Server server = new org.sentinel.configuration.Server();
+            server.setConfiguration(AbstractClass1.class);
+            server.setProtocol(AbstractClass1.class);
+            sentinel.launchListener(listener, server);
         }
         catch(SentinelException ex) {
             assertEquals("Can not instantiate: org.sentinel.SentinelTest$AbstractClass1",

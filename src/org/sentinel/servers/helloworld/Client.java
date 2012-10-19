@@ -23,6 +23,7 @@ public class Client extends org.sentinel.client.Client
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String output = "", inputLine;
             while((inputLine = in.readLine()) != null) {
+                System.out.println(inputLine);
                 output += inputLine + "\n";
             }
             

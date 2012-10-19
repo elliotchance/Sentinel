@@ -3,7 +3,6 @@ package org.sentinel.client;
 import java.net.Socket;
 import static org.junit.Assert.*;
 import org.junit.Test;
-import org.sentinel.server.SentinelServer;
 
 public class ClientTest
 {
@@ -13,7 +12,7 @@ public class ClientTest
     {
         Client client = new org.sentinel.servers.helloworld.Client();
         assertEquals("localhost", client.getHost());
-        assertEquals(SentinelServer.DEFAULT_PORT, client.getPort());
+        assertEquals(0, client.getPort());
     }
 
     @Test

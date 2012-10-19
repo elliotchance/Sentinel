@@ -8,4 +8,9 @@ public class SentinelException extends Exception
         super(string);
     }
     
+    public SentinelException(Exception cause)
+    {
+        super(cause);
+    }
+    
 }

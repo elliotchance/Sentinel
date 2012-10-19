@@ -7,4 +7,5 @@ public class NoSuchConfigurationServerException extends ConfigurationException
     {
         super("No such configuration server '" + name + "'");
     }
+    
 }

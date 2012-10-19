@@ -3,112 +3,45 @@ package org.sentinel.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
+import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.nio.channels.spi.SelectorProvider;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sentinel.SentinelException;
+import org.sentinel.SentinelJUnitStopException;
 import org.sentinel.SentinelRuntimeException;
+import org.sentinel.log.Logger;
 
 public class ListenerTest
 {
     
-    private SentinelProtocol protocol = new org.sentinel.servers.helloworld.Protocol();
-    private SentinelServer server = new org.sentinel.servers.helloworld.Server();
+    public static final int DEFAULT_PORT = 4040;
+    
+    public static final int DEFAULT_HELLOWORLD_PORT = 4040;
+    
+    public static final int DEFAULT_HTTP_PORT = 4041;
+    
+    private Class protocol = org.sentinel.servers.helloworld.Protocol.class;
     
     class ListenerMock extends Listener
     {
 
-        ListenerMock(int port, SentinelProtocol protocol, SentinelServer server)
+        public ListenerMock(int port, Class protocol)
         {
-            super(port, protocol, server);
+            super(port, protocol);
         }
-        
-        public void mockAccept()
+
+        @Override
+        public void init() throws SentinelException
         {
-            try {
-                serverSocket = Mockito.mock(ServerSocket.class);
-                Mockito.when(serverSocket.accept()).thenReturn(null);
-            }
-            catch(IOException ex) {
-                fail(ex.getMessage());
-            }
-        }
-        
-        public void mockSoTimeout()
-        {
+            // do nothing except trick the later steps into thinking the socket has been initialised
             initialized = true;
-            try {
-                serverSocket = Mockito.mock(ServerSocket.class);
-                Mockito.doThrow(new SocketException("setSoTimeout() failed"))
-                    .when(serverSocket)
-                    .setSoTimeout(100);
-            }
-            catch(IOException ex) {
-                fail(ex.getMessage());
-            }
-        }
-        
-        public void mockSocketClose()
-        {
-            initialized = true;
-            try {
-                serverSocket = Mockito.mock(ServerSocket.class);
-                Mockito.doThrow(new SocketException("close() failed"))
-                    .when(serverSocket)
-                    .close();
-            }
-            catch(IOException ex) {
-                fail(ex.getMessage());
-            }
-        }
-        
-    }
-    
-    class ListenerMockHandleClient extends ListenerMock
-    {
-
-        public ListenerMockHandleClient(int port, SentinelProtocol protocol, SentinelServer server)
-        {
-            super(port, protocol, server);
-        }
-
-        @Override
-        public void handleClient(Socket clientSocket) throws IOException
-        {
-            throw new IOException("Cient error.");
-        }
-        
-    }
-    
-    class ListenerMockAcceptConnection extends ListenerMock
-    {
-
-        public ListenerMockAcceptConnection(int port, SentinelProtocol protocol, SentinelServer server)
-        {
-            super(port, protocol, server);
-        }
-
-        @Override
-        protected boolean acceptConnection()
-        {
-            return false;
-        }
-        
-    }
-    
-    class ListenerMockJoin extends ListenerMock
-    {
-
-        public ListenerMockJoin(int port, SentinelProtocol protocol, SentinelServer server)
-        {
-            super(port, protocol, server);
-        }
-
-        @Override
-        public void waitForThreadToJoin() throws InterruptedException
-        {
-            throw new InterruptedException("waitForThreadToJoin() failed");
         }
         
     }
@@ -116,20 +49,29 @@ public class ListenerTest
     @Test
     public void testServersClashPort() throws Exception
     {
-        Listener listener1 = new Listener(1234, protocol, server);
-        listener1.init();
-        listener1.start();
-        
+        Listener listener1 = null, listener2 = null;
         try {
-            Listener listener2 = new Listener(1234, protocol, server);
-            listener2.init();
-            listener2.start();
+            listener1 = new Listener(1234, protocol);
+            listener1.init();
+            listener1.start();
+
+            try {
+                listener2 = new Listener(1234, protocol);
+                listener2.init();
+                listener2.start();
+            }
+            catch(SentinelException ex) {
+                assertEquals("Address already in use", ex.getMessage());
+            }
         }
-        catch(SentinelException ex) {
-            assertEquals("Address already in use", ex.getMessage());
+        finally {
+            if(listener1 != null) {
+                listener1.stopGracefully();
+            }
+            if(listener2 != null) {
+                listener2.stopGracefully();
+            }
         }
-        
-        listener1.stopGracefully();
     }
     
     @Test
@@ -137,82 +79,270 @@ public class ListenerTest
     {
         Listener listener1 = null;
         try {
-            listener1 = new Listener(1234, protocol, server);
+            listener1 = new Listener(1234, protocol);
             listener1.run();
         }
         catch(SentinelRuntimeException ex) {
             assertEquals("Listener is not initialised, you must invoke init() before start().",
                 ex.getMessage());
         }
-        listener1.stopGracefully();
+        finally {
+            if(listener1 != null) {
+                listener1.stopGracefully();
+            }
+        }
     }
     
     @Test
-    public void testSocketAcceptFail()
+    public void testBadSelect() throws SentinelException, IOException
     {
+        ListenerMock mock = null;
         try {
-            ListenerMockHandleClient listener1 =
-                new ListenerMockHandleClient(1234, protocol, server);
-            listener1.mockAccept();
-            listener1.acceptConnection();
-            fail("Didn't throw client error.");
+            try {
+                // init
+                mock = new ListenerMock(DEFAULT_PORT,
+                    org.sentinel.servers.http.protocol.Protocol.class);
+                mock.init();
+
+                // mock selector
+                mock.selector = Mockito.mock(Selector.class);
+                Mockito.when(mock.selector.select())
+                    .thenThrow(new IOException("Failed to select."))
+                    .thenThrow(new SentinelJUnitStopException());
+
+                // run
+                mock.run();
+
+                fail("Should have failed.");
+            }
+            catch(SentinelJUnitStopException ex) {
+                // validate
+                assertEquals("Failed to select.", Logger.getLastMessage());
+            }
         }
-        catch(SentinelRuntimeException ex) {
-            assertEquals("Cient error.", ex.getMessage());
+        finally {
+            if(mock != null) {
+                mock.stopGracefully();
+            }
         }
     }
     
-    @Test
-    public void testSetSoTimeoutFail()
+    class SocketChannelMock extends SocketChannel
     {
-        try {
-            ListenerMock listener1 = new ListenerMock(1234, protocol, server);
-            listener1.mockSoTimeout();
-            listener1.run();
-            fail("Didn't throw SocketException.");
+
+        public SocketChannelMock(SelectorProvider sp)
+        {
+            super(sp);
         }
-        catch(SentinelRuntimeException ex) {
-            assertEquals("setSoTimeout() failed", ex.getMessage());
+
+        @Override
+        public Socket socket()
+        {
+            throw new UnsupportedOperationException("Not supported yet.");
         }
-    }
-    
-    @Test
-    public void testAcceptConnectionFinished() throws SentinelException
-    {
-        ListenerMockAcceptConnection listener1 =
-            new ListenerMockAcceptConnection(1234, protocol, server);
-        listener1.init();
-        listener1.run();
+
+        @Override
+        public boolean isConnected()
+        {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public boolean isConnectionPending()
+        {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public boolean connect(SocketAddress sa) throws IOException
+        {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public boolean finishConnect() throws IOException
+        {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public int read(ByteBuffer bb) throws IOException
+        {
+            throw new IOException("Bad read.");
+        }
+
+        @Override
+        public long read(ByteBuffer[] bbs, int i, int i1) throws IOException
+        {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public int write(ByteBuffer bb) throws IOException
+        {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        public long write(ByteBuffer[] bbs, int i, int i1) throws IOException
+        {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        protected void implCloseSelectableChannel() throws IOException
+        {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+
+        @Override
+        protected void implConfigureBlocking(boolean bln) throws IOException
+        {
+            // this is mocked to do nothing
+        }
         
-        // now make sure the thread has stopped running
-        assertFalse(listener1.isAlive());
     }
     
     @Test
-    public void testSocketCloseFail()
+    public void testBadAccept() throws IOException
     {
+        Listener listener = null;
         try {
-            ListenerMockAcceptConnection listener1 =
-                new ListenerMockAcceptConnection(1234, protocol, server);
-            listener1.mockSocketClose();
-            listener1.run();
-            fail("Didn't throw IOException.");
+            listener = new Listener(DEFAULT_PORT, org.sentinel.servers.http.Application.class);
+
+            // mock ServerSocketChannel
+            ServerSocketChannel ssc = Mockito.mock(ServerSocketChannel.class);
+            Mockito.when(ssc.accept()).thenReturn(new SocketChannelMock(null));
+
+            // mock SelectionKey
+            SelectionKey selectionKey = Mockito.mock(SelectionKey.class);
+            Mockito.when(selectionKey.channel()).thenReturn(ssc);
+
+            try {
+                listener.accept(selectionKey);
+                fail();
+            }
+            catch(SentinelException ex) {
+                // verify
+                assertEquals("java.lang.InstantiationException: org.sentinel.servers.http.Application",
+                    ex.getMessage());
+            }
         }
-        catch(SentinelRuntimeException ex) {
-            assertEquals("close() failed", ex.getMessage());
+        finally {
+            if(listener != null) {
+                listener.stopGracefully();
+            }
         }
     }
     
     @Test
-    public void testThreadJoinFail()
+    public void testClientClosesConnection() throws SentinelException, IOException
     {
+        Listener listener = null;
         try {
-            ListenerMockJoin listener1 = new ListenerMockJoin(1234, protocol, server);
-            listener1.stopGracefully();
-            fail("Didn't throw InterruptedException.");
+            listener = new Listener(DEFAULT_PORT,
+                org.sentinel.servers.http.protocol.Protocol.class);
+            listener.init();
+            listener.start();
+            
+            org.sentinel.servers.http.Client client = new org.sentinel.servers.http.Client();
+            client.setPort(DEFAULT_PORT);
+            client.connect();
+            client.getSocket().close();
         }
-        catch(SentinelRuntimeException ex) {
-            assertEquals("waitForThreadToJoin() failed", ex.getMessage());
+        finally {
+            if(listener != null) {
+                listener.stopGracefully();
+            }
+        }
+    }
+    
+    @Test
+    public void testBadRead1() throws SentinelException, IOException
+    {
+        Listener listener = null;
+        try {
+            listener = new Listener(DEFAULT_PORT, org.sentinel.servers.http.Application.class);
+            listener.initialized = true;
+
+            // mock ServerSocketChannel
+            SocketChannel ssc = Mockito.mock(SocketChannel.class);
+            Mockito.when(ssc.read((ByteBuffer) Mockito.anyObject())).thenReturn(-1);
+
+            // mock SelectionKey
+            SelectionKey selectionKey = Mockito.mock(SelectionKey.class);
+            Mockito.when(selectionKey.channel()).thenReturn(ssc);
+            Mockito.doNothing().when(selectionKey).cancel();
+
+            // MockFinalMethod
+            listener.mocker = Mockito.mock(MockFinalMethod.class);
+            Mockito.doNothing().when(listener.mocker).closeSocketChannel(ssc);
+
+            // run
+            assertFalse(listener.read(selectionKey));
+        }
+        finally {
+            if(listener != null) {
+                listener.stopGracefully();
+            }
+        }
+    }
+    
+    @Test
+    public void testBadRead2() throws SentinelException, IOException
+    {
+        Listener listener = null;
+        try {
+            listener = new Listener(DEFAULT_PORT, org.sentinel.servers.http.Application.class);
+            listener.initialized = true;
+
+            // mock ServerSocketChannel
+            SocketChannel ssc = Mockito.mock(SocketChannel.class);
+            Mockito.when(ssc.read((ByteBuffer) Mockito.anyObject())).thenThrow(new IOException("Bad read."));
+
+            // mock SelectionKey
+            SelectionKey selectionKey = Mockito.mock(SelectionKey.class);
+            Mockito.when(selectionKey.channel()).thenReturn(ssc);
+            Mockito.doNothing().when(selectionKey).cancel();
+
+            // MockFinalMethod
+            listener.mocker = Mockito.mock(MockFinalMethod.class);
+            Mockito.doNothing().when(listener.mocker).closeSocketChannel(ssc);
+
+            // run
+            assertFalse(listener.read(selectionKey));
+        }
+        finally {
+            if(listener != null) {
+                listener.stopGracefully();
+            }
+        }
+    }
+    
+    @Test
+    public void testStopGracefullyFail() throws SentinelException, IOException
+    {
+        Listener listener = null;
+        try {
+            listener = new Listener(DEFAULT_PORT, org.sentinel.servers.http.Application.class);
+            listener.initialized = true;
+
+            // mock ServerSocketChannel
+            ServerSocketChannel ssc = Mockito.mock(ServerSocketChannel.class);
+            Mockito.when(ssc.socket()).thenReturn(new ServerSocket());
+            listener.serverChannel = ssc;
+            
+            // mocker
+            listener.mocker = Mockito.mock(MockFinalMethod.class);
+            Mockito.doThrow(new IOException("Cannot close socket.")).when(listener.mocker).closeServerSocket((ServerSocket) Mockito.anyObject());
+            
+            listener.stopGracefully();
+            assertEquals("Cannot close socket.", Logger.getLastMessage());
+        }
+        finally {
+            if(listener != null) {
+                listener.stopGracefully();
+            }
         }
     }
     

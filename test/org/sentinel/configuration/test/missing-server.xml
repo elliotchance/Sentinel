@@ -6,7 +6,6 @@
     <servers>
         <server name="helloWorldServer-bad"
                 protocol="org.sentinel.servers.helloworld.Protocol"
-                server="org.sentinel.servers.helloworld.Server"
                 configuration="org.sentinel.servers.helloworld.configuration.Server">
         </server>
     </servers>

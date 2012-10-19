@@ -17,7 +17,7 @@ public class ServersTest extends org.sentinel.test.cases.ConfigurationParserCase
     public void testToString2()
     {
         Servers servers = new Servers();
-        Server server = new Server("abc", Integer.class, Double.class, Float.class);
+        Server server = new Server("abc", Integer.class, Float.class);
         servers.put(server.getName(), server);
         assertEquals("<servers>" + server.toString() + "</servers>", servers.toString());
     }

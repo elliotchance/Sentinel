@@ -1,11 +1,21 @@
 package org.sentinel.server;
 
 import java.io.IOException;
-import java.net.Socket;
+import java.nio.channels.SelectionKey;
+import org.sentinel.SentinelException;
+import org.sentinel.configuration.ConfigurationNode;
 
-public interface SentinelProtocol
+public abstract class SentinelProtocol
 {
+    
+    protected ConfigurationNode configuration = null;
 
-    SentinelRequest handleRawRequest(final Socket socket) throws IOException;
+    public void setConfiguration(ConfigurationNode configuration)
+    {
+        this.configuration = configuration;
+    }
+
+    public abstract void handleRead(SelectionKey key, byte[] data) throws IOException,
+        SentinelException;
     
 }

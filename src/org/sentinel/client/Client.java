@@ -7,13 +7,12 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-import org.sentinel.server.SentinelServer;
 
 public abstract class Client
 {
 
     protected String host = "localhost";
-    protected int port = SentinelServer.DEFAULT_PORT;
+    protected int port = 0;
     protected int maxTimeout = 2000;
     protected Socket socket = null;
     
@@ -27,11 +26,6 @@ public abstract class Client
         // create the socket
         socket = new Socket();
         socket.connect(sockaddr, maxTimeout);
-    }
-    
-    public void close() throws IOException
-    {
-        socket.close();
     }
 
     public String getHost()

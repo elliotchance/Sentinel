@@ -1,16 +1,15 @@
 package org.sentinel.servers.helloworld;
 
-import java.io.IOException;
 import static org.junit.Assert.*;
 import org.junit.Test;
-import org.sentinel.server.SentinelServer;
+import org.sentinel.server.ListenerTest;
 
 public class ServerTest extends org.sentinel.test.cases.ServerCase
 {
 
     public ServerTest()
     {
-        super(org.sentinel.servers.helloworld.Client.class, SentinelServer.DEFAULT_HELLOWORLD_PORT);
+        super(org.sentinel.servers.helloworld.Client.class, ListenerTest.DEFAULT_HELLOWORLD_PORT);
     }
 
     /**
@@ -19,14 +18,8 @@ public class ServerTest extends org.sentinel.test.cases.ServerCase
     @Test
     public void testResponse() throws Exception
     {
-        String response = getClient().sendRawRequest("");
+        String response = getClient().sendRawRequest("\n");
         assertEquals("Hello, World!\n", response);
-    }
-
-    @Test
-    public void testPrematureExit() throws IOException
-    {
-        getClient().close();
     }
     
 }

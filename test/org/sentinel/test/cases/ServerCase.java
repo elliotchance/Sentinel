@@ -9,7 +9,7 @@ import org.sentinel.Main;
 import org.sentinel.Sentinel;
 import org.sentinel.client.Client;
 import org.sentinel.configuration.ConfigurationException;
-import org.sentinel.server.SentinelServer;
+import org.sentinel.server.ListenerTest;
 
 public class ServerCase
 {
@@ -22,11 +22,11 @@ public class ServerCase
     
     protected Sentinel server = null;
     
-    protected int port = SentinelServer.DEFAULT_PORT;
+    protected int port = ListenerTest.DEFAULT_PORT;
     
     public ServerCase(Class clientClass)
     {
-        this(clientClass, SentinelServer.DEFAULT_PORT, org.sentinel.configuration.Sentinel.DEFAULT_CONFIGURATION);
+        this(clientClass, ListenerTest.DEFAULT_PORT, org.sentinel.configuration.Sentinel.DEFAULT_CONFIGURATION);
     }
     
     public ServerCase(Class clientClass, int port)

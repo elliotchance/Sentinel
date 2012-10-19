@@ -2,24 +2,35 @@ package org.sentinel.servers.http;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
-import org.sentinel.server.SentinelServer;
+import org.sentinel.server.ListenerTest;
+import org.sentinel.servers.http.protocol.HTTPResponse;
 
 public class ServerTest extends org.sentinel.test.cases.ServerCase
 {
 
     public ServerTest()
     {
-        super(org.sentinel.servers.http.Client.class, SentinelServer.DEFAULT_HTTP_PORT);
+        super(org.sentinel.servers.http.Client.class, ListenerTest.DEFAULT_HTTP_PORT);
     }
 
     @Test
-    public void testResponse() throws Exception
+    public void test404Response() throws Exception
     {
         org.sentinel.servers.http.Client client = (org.sentinel.servers.http.Client) getClient();
-        Response response = client.sendRequest("something");
+        HTTPResponse response = client.sendRequest("/", "");
+        
+        assertEquals(404, response.getHTTPHeaders().getStatus());
+        assertTrue(new String(response.getBody()).contains("Not Found"));
+    }
+
+    @Test
+    public void testSimpleAppResponse() throws Exception
+    {
+        org.sentinel.servers.http.Client client = (org.sentinel.servers.http.Client) getClient();
+        HTTPResponse response = client.sendRequest("/simpleapp?a=1", "");
         
         assertEquals(200, response.getHTTPHeaders().getStatus());
-        assertEquals("It works!", new String(response.getBody()));
+        assertTrue(new String(response.getBody()).contains("SimpleApp"));
     }
 
     @Test
@@ -28,7 +39,7 @@ public class ServerTest extends org.sentinel.test.cases.ServerCase
         org.sentinel.servers.http.Client client = (org.sentinel.servers.http.Client) getClient();
         String response = client.sendRawRequest("GET / HTTP/1.1\n\n");
         
-        assertEquals("HTTP/1.1 200 OK", response.split("\n")[0]);
+        assertEquals("HTTP/1.1 404 Not Found", response.split("\n")[0]);
     }
 
 }

@@ -6,7 +6,6 @@
     <servers>
         <server name="helloWorldServer"
                 protocol="no.such.protocol"
-                server="no.such.class"
                 configuration="no.such.class">
         </server>
     </servers>
