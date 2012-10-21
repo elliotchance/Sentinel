@@ -28,7 +28,7 @@ public class BadConfigurationTest
     {
         try {
             Client client = launchServerWithConfiguration(badXmlPackage + "/blank.xml");
-            throw new Exception("Server should not have launched.");
+            fail("Server should not have launched.");
         }
         catch(ConfigurationException ex) {
             assertEquals("Configuration XML file is invalid: Premature end of file.",
@@ -41,7 +41,7 @@ public class BadConfigurationTest
     {
         try {
             Client client = launchServerWithConfiguration(badXmlPackage + "/incorrect-root.xml");
-            throw new Exception("Server should not have launched.");
+            fail("Server should not have launched.");
         }
         catch(ConfigurationException ex) {
             assertEquals("Root node of configuration file must be 'sentinel'.", ex.getMessage());
@@ -53,7 +53,7 @@ public class BadConfigurationTest
     {
         try {
             Client client = launchServerWithConfiguration(badXmlPackage + "/missing-server.xml");
-            throw new Exception("Server should not have launched.");
+            fail("Server should not have launched.");
         }
         catch(ConfigurationException ex) {
             assertEquals("No such configuration server 'helloWorldServer'", ex.getMessage());
@@ -65,7 +65,7 @@ public class BadConfigurationTest
     {
         try {
             Client client = launchServerWithConfiguration(badXmlPackage + "/missing-class.xml");
-            throw new Exception("Server should not have launched.");
+            fail("Server should not have launched.");
         }
         catch(ConfigurationException ex) {
             assertEquals("No such class 'no.such.protocol'", ex.getMessage());
@@ -77,7 +77,7 @@ public class BadConfigurationTest
     {
         try {
             Client client = launchServerWithConfiguration(badXmlPackage + "/no-such-file.xml");
-            throw new Exception("Server should not have launched.");
+            fail("Server should not have launched.");
         }
         catch(ConfigurationException ex) {
             assertEquals("Could not find configuration file /org/sentinel/configuration/test/no-such-file.xml", ex.getMessage());
@@ -89,10 +89,34 @@ public class BadConfigurationTest
     {
         try {
             Client client = launchServerWithConfiguration(badXmlPackage + "/no-listeners.xml");
-            throw new Exception("Server should not have launched.");
+            fail("Server should not have launched.");
         }
         catch(ConfigurationException ex) {
             assertEquals("There are no listeners configured.", ex.getMessage());
+        }
+    }
+    
+    @Test
+    public void testMissingRequiredNode() throws Exception
+    {
+        try {
+            Client client = launchServerWithConfiguration(badXmlPackage + "/missing-required-node.xml");
+            fail("Server should not have launched.");
+        }
+        catch(ConfigurationException ex) {
+            assertEquals("Child element <listeners> is required for <sentinel>", ex.getMessage());
+        }
+    }
+    
+    @Test
+    public void testInvalidAttribute() throws Exception
+    {
+        try {
+            Client client = launchServerWithConfiguration(badXmlPackage + "/invalid-attribute.xml");
+            fail("Server should not have launched.");
+        }
+        catch(ConfigurationException ex) {
+            assertEquals("Bad attribute 'foo'", ex.getMessage());
         }
     }
     

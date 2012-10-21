@@ -1,7 +1,6 @@
 package org.sentinel.servers.http.protocol;
 
-import org.sentinel.servers.http.protocol.HTTPHeaders;
-import org.sentinel.servers.http.protocol.HTTPHeader;
+import org.sentinel.servers.http.configuration.Application;
 
 public class HTTPRequestHeaders extends HTTPHeaders
 {
@@ -43,6 +42,16 @@ public class HTTPRequestHeaders extends HTTPHeaders
     public String getPath()
     {
         return path;
+    }
+    
+    /**
+     * Get the relative path to the root application path.
+     * @param app Application path to reference.
+     * @return Path relative to the application.
+     */
+    public String getPath(Application app)
+    {
+        return path.substring(app.getPrefix().length());
     }
 
     public void setPath(String path)

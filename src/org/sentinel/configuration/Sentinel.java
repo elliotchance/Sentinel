@@ -6,8 +6,20 @@ import org.w3c.dom.NodeList;
 public class Sentinel implements ConfigurationParser, ConfigurationNode
 {
 
+    /**
+     * Listeners.
+     */
     private Listeners listeners = null;
+    
+    /**
+     * Servers.
+     */
     private Servers servers = null;
+    
+    /**
+     * The default configuration location. This is a package path.
+     */
+    public static final String DEFAULT_CONFIGURATION = "/org/sentinel/configuration/default.xml";
 
     /**
      * When unit testing this class we want listeners and servers to be initialized.
@@ -20,9 +32,12 @@ public class Sentinel implements ConfigurationParser, ConfigurationNode
         sentinel.servers = new Servers();
         return sentinel;
     }
-    
-    public static final String DEFAULT_CONFIGURATION = "/org/sentinel/configuration/default.xml";
 
+    /**
+     * Add a listener. If the listener has the same port as a listener already added it will replace
+     * it.
+     * @param listener The listener.
+     */
     public void addListener(Listener listener)
     {
         listeners.put(listener.getPort(), listener);
@@ -44,36 +59,43 @@ public class Sentinel implements ConfigurationParser, ConfigurationNode
     }
 
     @Override
+    public void parseTextElement(String content) throws ConfigurationException
+    {
+        // ignore
+    }
+
+    @Override
+    public boolean parseElement(Node node) throws ConfigurationException
+    {
+        // <listeners>
+        if(node.getNodeName().equals("listeners")) {
+            listeners = (Listeners) new Listeners().parseRoot(node);
+            return true;
+        }
+
+        // <servers>
+        if(node.getNodeName().equals("servers")) {
+            servers = (Servers) new Servers().parseRoot(node);
+            return true;
+        }
+        
+        return false;
+    }
+
+    @Override
+    public boolean parseAttribute(String name, String value) throws ConfigurationException
+    {
+        return false;
+    }
+
+    @Override
     public ConfigurationNode parseRoot(Node node) throws ConfigurationException
     {
         if(!node.getNodeName().equals("sentinel")) {
             throw new ConfigurationException("Root node of configuration file must be 'sentinel'.");
         }
         
-        // read children
-        NodeList children = node.getChildNodes();
-        for(int i = 0; i < children.getLength(); ++i) {
-            Node child = children.item(i);
-            
-            // ignore text
-            if(child.getNodeType() == Node.TEXT_NODE) {
-                continue;
-            }
-            
-            // <listeners>
-            if(child.getNodeName().equals("listeners")) {
-                listeners = (Listeners) new Listeners().parseRoot(child);
-                continue;
-            }
-            
-            // <servers>
-            if(child.getNodeName().equals("servers")) {
-                servers = (Servers) new Servers().parseRoot(child);
-                continue;
-            }
-            
-            throw new ConfigurationException("Bad child node '" + child.getNodeName() + "'");
-        }
+        ConfigurationParserHelper.parseRoot(node, this);
         
         // we need at least one listener
         if(listeners.isEmpty()) {
@@ -112,6 +134,18 @@ public class Sentinel implements ConfigurationParser, ConfigurationNode
             r += servers;
         }
         return r + "</sentinel>";
+    }
+
+    @Override
+    public String[] getRequiredChildElements()
+    {
+        return new String[] { "listeners", "servers" };
+    }
+
+    @Override
+    public String[] getRequiredAttributes()
+    {
+        return new String[] { };
     }
     
 }

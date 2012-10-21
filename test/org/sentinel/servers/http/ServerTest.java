@@ -20,7 +20,7 @@ public class ServerTest extends org.sentinel.test.cases.ServerCase
         HTTPResponse response = client.sendRequest("/", "");
         
         assertEquals(404, response.getHTTPHeaders().getStatus());
-        assertTrue(new String(response.getBody()).contains("Not Found"));
+        assertTrue(response.getRawResponse().contains("Not Found"));
     }
 
     @Test
@@ -30,7 +30,7 @@ public class ServerTest extends org.sentinel.test.cases.ServerCase
         HTTPResponse response = client.sendRequest("/simpleapp?a=1", "");
         
         assertEquals(200, response.getHTTPHeaders().getStatus());
-        assertTrue(new String(response.getBody()).contains("SimpleApp"));
+        assertTrue(response.getRawResponse().contains("SimpleApp"));
     }
 
     @Test
@@ -40,6 +40,15 @@ public class ServerTest extends org.sentinel.test.cases.ServerCase
         String response = client.sendRawRequest("GET / HTTP/1.1\n\n");
         
         assertEquals("HTTP/1.1 404 Not Found", response.split("\n")[0]);
+    }
+    
+    @Test
+    public void testFetchStatic() throws Exception
+    {
+        org.sentinel.servers.http.Client client = (org.sentinel.servers.http.Client) getClient();
+        HTTPResponse response = client.sendRequest("/simpleapp/socket.io.js");
+        
+        assertEquals(100943, (int) Integer.valueOf(response.getHTTPHeaders().get("content-length").getValue()));
     }
 
 }

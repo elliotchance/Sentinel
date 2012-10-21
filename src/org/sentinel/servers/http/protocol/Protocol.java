@@ -3,6 +3,7 @@ package org.sentinel.servers.http.protocol;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -13,6 +14,7 @@ import org.sentinel.SentinelException;
 import org.sentinel.log.Logger;
 import org.sentinel.server.SentinelProtocol;
 import org.sentinel.servers.http.configuration.Application;
+import org.sentinel.servers.http.configuration.Static;
 
 public class Protocol extends SentinelProtocol
 {
@@ -73,18 +75,17 @@ public class Protocol extends SentinelProtocol
         String path = pathUrl.getPath(), query = pathUrl.getQuery();
         
         // find the application responsible for this endpoint
-        org.sentinel.servers.http.configuration.Server config =
-            (org.sentinel.servers.http.configuration.Server) configuration;
+        org.sentinel.servers.http.configuration.Server config = getConfiguration();
         HTTPResponse response = null;
         for(Application app : config.getApplications()) {
-            if(app.getPrefix().equals(path)) {
+            if(path.startsWith(app.getPrefix())) {
                 // create request
                 org.sentinel.servers.http.protocol.HTTPRequest srequest =
                     new org.sentinel.servers.http.protocol.HTTPRequest();
                 
                 srequest.setRequestURL(new org.sentinel.framework.URL(pathUrl));
 
-                response = runApplication(key, app);
+                response = runApplication(key, app, request);
             }
         }
         
@@ -112,14 +113,39 @@ public class Protocol extends SentinelProtocol
         socketChannel.close();
     }
     
-    protected HTTPResponse runApplication(SelectionKey key, Application application)
-        throws SentinelException
+    protected org.sentinel.servers.http.configuration.Server getConfiguration()
     {
+        return (org.sentinel.servers.http.configuration.Server) configuration;
+    }
+    
+    protected HTTPResponse runApplication(SelectionKey key, Application application,
+        HTTPRequest request) throws SentinelException
+    {
+        HTTPResponse response = new HTTPResponse();
+
         try {
             org.sentinel.servers.http.Application app =
                 (org.sentinel.servers.http.Application) application.getApplication().newInstance();
             
-            HTTPResponse response = new HTTPResponse();
+            // check for static content
+            String staticPath = request.getHTTPHeaders().getPath(application);
+            if(staticPath.length() > 1) {
+                for(Static theStatic : application.getStatics()) {
+                    String staticDir = theStatic.getPath().replace('.', '/');
+
+                    // does the resource exist?
+                    InputStream stream = getClass().getClassLoader().getResourceAsStream(staticDir + staticPath);
+                    if(stream != null) {
+                        byte[] buf = new byte[1024];
+                        int len;
+                        while((len = stream.read(buf)) > 0) {
+                            response.write(buf, len);
+                        }
+                        return response;
+                    }
+                }
+            }
+            
             app.handleRequest(request, response);
             return response;
         }

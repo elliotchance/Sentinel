@@ -84,5 +84,35 @@ public class ServerTest extends ConfigurationParserCase
         assertEquals(server.toString(),
             "<server configuration=\"java.lang.Integer\" name=\"abc\" protocol=\"java.lang.Float\"/>");
     }
+
+    @Test
+    public void testParseAttribute() throws ConfigurationException
+    {
+        assertFalse(new Server().parseAttribute(null, null));
+    }
+
+    @Test
+    public void testParseTextElement() throws ConfigurationException
+    {
+        new Server().parseTextElement(null);
+    }
+
+    @Test
+    public void testParseElement() throws ConfigurationException
+    {
+        assertFalse(new Server().parseElement(null));
+    }
+
+    @Test
+    public void testGetRequiredChildElements() throws ConfigurationException
+    {
+        assertEquals(new String[] {}, new Server().getRequiredChildElements());
+    }
+
+    @Test
+    public void testGetRequiredAttributes() throws ConfigurationException
+    {
+        assertEquals(new String[] {}, new Server().getRequiredAttributes());
+    }
     
 }

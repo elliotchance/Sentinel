@@ -1,7 +1,5 @@
 package org.sentinel.servers.http.protocol;
 
-import org.sentinel.servers.http.protocol.HTTPResponse;
-import org.sentinel.servers.http.protocol.HTTPResponseHeaders;
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -14,7 +12,7 @@ public class ResponseTest
         byte[] b = "abc".getBytes();
         HTTPResponse response = new HTTPResponse();
         response.setBody(b);
-        assertEquals("abc", new String(response.getBody()));
+        assertTrue(response.getRawResponse().endsWith("abc"));
     }
 
     @Test
@@ -38,7 +36,7 @@ public class ResponseTest
         HTTPResponse response = new HTTPResponse();
         response.write("something");
         response.write("else");
-        assertEquals("somethingelse", new String(response.getBody()));
+        assertTrue(response.getRawResponse().endsWith("somethingelse"));
     }
 
 }

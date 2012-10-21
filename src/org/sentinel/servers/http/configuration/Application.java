@@ -1,13 +1,13 @@
 package org.sentinel.servers.http.configuration;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.ArrayList;
 import org.sentinel.configuration.ConfigurationException;
 import org.sentinel.configuration.ConfigurationNode;
 import org.sentinel.configuration.ConfigurationParser;
 import org.sentinel.configuration.ConfigurationParserHelper;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 public class Application implements ConfigurationParser, ConfigurationNode
 {
@@ -17,6 +17,8 @@ public class Application implements ConfigurationParser, ConfigurationNode
     protected Class application;
     
     protected String prefix;
+    
+    protected ArrayList<Static> statics = new ArrayList<Static>();
     
     public Application()
     {
@@ -59,25 +61,16 @@ public class Application implements ConfigurationParser, ConfigurationNode
         this.prefix = prefix;
     }
 
+    public ArrayList<Static> getStatics()
+    {
+        return statics;
+    }
+
     @Override
     public ConfigurationNode parseRoot(Node node) throws ConfigurationException
     {
-        // no children
-        ConfigurationParserHelper.nodeShouldHaveNoChildren(node);
-        
-        try {
-            // attributes
-            NamedNodeMap listenerAttributes = node.getAttributes();
-
-            name = listenerAttributes.getNamedItem("name").getNodeValue();
-            application = Class.forName(listenerAttributes.getNamedItem("application").getNodeValue());
-            prefix = listenerAttributes.getNamedItem("prefix").getNodeValue();
-            
-            return this;
-        }
-        catch(ClassNotFoundException ex) {
-            throw new ConfigurationException("No such class '" + ex.getMessage() + "'");
-        }
+        ConfigurationParserHelper.parseRoot(node, this);
+        return this;
     }
 
     @Override
@@ -85,6 +78,62 @@ public class Application implements ConfigurationParser, ConfigurationNode
     {
         return "<application application=\"" + application.getCanonicalName() + "\" name=\"" +
             name + "\" prefix=\"" + prefix + "\"/>";
+    }
+
+    @Override
+    public void parseTextElement(String content) throws ConfigurationException
+    {
+        // ignore
+    }
+
+    @Override
+    public boolean parseElement(Node node) throws ConfigurationException
+    {
+        // <static>
+        if(node.getNodeName().equals("static")) {
+            statics.add((Static) new Static().parseRoot(node));
+            return true;
+        }
+        
+        return false;
+    }
+
+    @Override
+    public boolean parseAttribute(String name, String value) throws ConfigurationException
+    {
+        if(name.equals("name")) {
+            this.name = value;
+            return true;
+        }
+        
+        if(name.equals("application")) {
+            try {
+                this.application = Class.forName(value);
+                return true;
+            }
+            catch(ClassNotFoundException ex) {
+                throw new ConfigurationException("No such class '" + ex.getMessage() + "'");
+            }
+        }
+        
+        if(name.equals("prefix")) {
+            this.prefix = value;
+            return true;
+        }
+        
+        return false;
+    }
+
+    @Override
+    public String[] getRequiredChildElements()
+    {
+        return new String[] { };
+    }
+
+    @Override
+    public String[] getRequiredAttributes()
+    {
+        return new String[] { "name", "application", "prefix" };
     }
     
 }

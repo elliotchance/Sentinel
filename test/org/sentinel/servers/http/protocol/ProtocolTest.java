@@ -34,7 +34,7 @@ public class ProtocolTest
             app.setApplication(Integer.class);
 
             Protocol protocol = new Protocol();
-            protocol.runApplication(null, app);
+            protocol.runApplication(null, app, null);
         }
         catch(SentinelException ex) {
             assertTrue(ex.getMessage().contains("Integer"));

@@ -16,6 +16,7 @@
                 <application name="SimpleApp"
                              application="org.sentinel.example.simpleapp.SimpleApp"
                              prefix="/simpleapp">
+                    <static path="org.sentinel.example.simpleapp.staticcontent"></static>
                 </application>
             </applications>
         </server>

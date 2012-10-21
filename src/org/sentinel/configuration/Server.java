@@ -1,5 +1,6 @@
 package org.sentinel.configuration;
 
+import org.sentinel.log.Logger;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
@@ -104,6 +105,40 @@ public class Server implements ConfigurationParser, ConfigurationNode
         catch(Exception ex) {
             throw new ConfigurationException(ex.getMessage());
         }
+    }
+
+    @Override
+    public void parseTextElement(String content) throws ConfigurationException
+    {
+        // ignore
+    }
+
+    @Override
+    public boolean parseElement(Node node) throws ConfigurationException
+    {
+        // ignore
+        return false;
+    }
+
+    @Override
+    public boolean parseAttribute(String name, String value) throws ConfigurationException
+    {
+        // ignore
+        return false;
+    }
+
+    @Override
+    public String[] getRequiredChildElements()
+    {
+        // ignore
+        return new String[] { };
+    }
+
+    @Override
+    public String[] getRequiredAttributes()
+    {
+        // ignore
+        return new String[] { };
     }
 
     @Override

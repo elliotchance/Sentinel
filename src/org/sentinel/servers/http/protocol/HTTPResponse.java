@@ -1,35 +1,43 @@
 package org.sentinel.servers.http.protocol;
 
+import java.util.LinkedList;
+
 public class HTTPResponse
 {
 
-    protected byte[] body = null;
+    protected LinkedList<byte[]> body = new LinkedList<byte[]>();
     
     protected HTTPResponseHeaders httpHeaders = null;
     
+    protected int contentLength = 0;
+    
     public HTTPResponse()
     {
-        body = new byte[0];
         httpHeaders = new HTTPResponseHeaders();
     }
 
     public String getRawResponse()
     {
         // set the content-length
-        String length = String.valueOf(body.length);
-        httpHeaders.addOrReplace(new HTTPHeader("Content-Length", length));
+        httpHeaders.addOrReplace(new HTTPHeader("Content-Length", contentLength));
         
-        return httpHeaders + "\n" + new String(body);
-    }
-
-    public byte[] getBody()
-    {
-        return body;
+        // build full data
+        byte[] full = new byte[contentLength];
+        int offset = 0;
+        for(byte[] b : body) {
+            for(int i = 0; i < b.length; ++i, ++offset) {
+                full[offset] = b[i];
+            }
+        }
+        
+        return httpHeaders + "\n" + new String(full);
     }
 
     public void setBody(byte[] body)
     {
-        this.body = body;
+        this.body = new LinkedList<byte[]>();
+        this.body.add(body);
+        contentLength = body.length;
     }
 
     public HTTPResponseHeaders getHTTPHeaders()
@@ -66,7 +74,24 @@ public class HTTPResponse
 
     public void write(String data)
     {
-        body = (new String(body) + data).getBytes();
+        write(data.getBytes());
+    }
+    
+    public void write(byte[] data)
+    {
+        write(data, data.length);
+    }
+    
+    public void write(byte[] data, int len)
+    {
+        contentLength += len;
+        
+        if(data.length != len) {
+            body.add(new String(data, 0, len).getBytes());
+        }
+        else {
+            body.add(data);
+        }
     }
     
 }

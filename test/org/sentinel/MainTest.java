@@ -9,7 +9,7 @@ public class MainTest
     public void testMain() throws Exception
     {
         // launch application as if it were the command line
-        org.sentinel.Main.main(new String[] {});
+        org.sentinel.Main.main(new String[] { });
     }
     
 }

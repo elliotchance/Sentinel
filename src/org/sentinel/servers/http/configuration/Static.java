@@ -1,33 +1,33 @@
-package org.sentinel.configuration;
+package org.sentinel.servers.http.configuration;
 
-import org.w3c.dom.NamedNodeMap;
+import org.sentinel.configuration.ConfigurationException;
+import org.sentinel.configuration.ConfigurationNode;
+import org.sentinel.configuration.ConfigurationParser;
+import org.sentinel.configuration.ConfigurationParserHelper;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
-public class Listener implements ConfigurationParser, ConfigurationNode
+public class Static implements ConfigurationParser, ConfigurationNode
 {
 
-    private int port;
-    private String server;
-
-    public Listener()
+    protected String path;
+    
+    public Static()
     {
     }
 
-    public Listener(int port, String server)
+    public Static(String path)
     {
-        this.port = port;
-        this.server = server;
+        this.path = path;
     }
 
-    public int getPort()
+    public String getPath()
     {
-        return port;
+        return path;
     }
 
-    public String getServer()
+    public void setPath(String path)
     {
-        return server;
+        this.path = path;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class Listener implements ConfigurationParser, ConfigurationNode
     @Override
     public String toString()
     {
-        return "<listener port=\"" + port + "\" server=\"" + server + "\"/>";
+        return "<static path=\"" + path + "\"/>";
     }
 
     @Override
@@ -58,13 +58,8 @@ public class Listener implements ConfigurationParser, ConfigurationNode
     @Override
     public boolean parseAttribute(String name, String value) throws ConfigurationException
     {
-        if(name.equals("port")) {
-            port = Integer.valueOf(value);
-            return true;
-        }
-        
-        if(name.equals("server")) {
-            server = value;
+        if(name.equals("path")) {
+            this.path = value;
             return true;
         }
         
@@ -80,7 +75,7 @@ public class Listener implements ConfigurationParser, ConfigurationNode
     @Override
     public String[] getRequiredAttributes()
     {
-        return new String[] { "port", "server" };
+        return new String[] { "path" };
     }
     
 }

@@ -13,7 +13,7 @@ public class ListenerTest extends ConfigurationParserCase
         assertConfigurationException(
             new Listener(),
             "<listener/>",
-            "You must specify the port attribute for <listener>"
+            "Attribute 'port' is required for <listener>"
         );
     }
 
@@ -23,7 +23,7 @@ public class ListenerTest extends ConfigurationParserCase
         assertConfigurationException(
             new Listener(),
             "<listener port=\"4040\"/>",
-            "You must specify the server attribute for <listener>"
+            "Attribute 'server' is required for <listener>"
         );
     }
 
@@ -32,6 +32,24 @@ public class ListenerTest extends ConfigurationParserCase
     {
         assertEquals(new Listener(1234, "serverName").toString(),
             "<listener port=\"1234\" server=\"serverName\"/>");
+    }
+
+    @Test
+    public void testParseTextElement() throws ConfigurationException
+    {
+        new Listener().parseTextElement(null);
+    }
+
+    @Test
+    public void testParseElement() throws ConfigurationException
+    {
+        assertFalse(new Listener().parseElement(null));
+    }
+
+    @Test
+    public void testParseAttribute() throws ConfigurationException
+    {
+        assertFalse(new Listener().parseAttribute("doesntexist", null));
     }
 
 }

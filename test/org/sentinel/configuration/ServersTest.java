@@ -28,4 +28,10 @@ public class ServersTest extends org.sentinel.test.cases.ConfigurationParserCase
         assertBadChildNode(new Servers(), "<servers><bad/></servers>");
     }
 
+    @Test
+    public void testParseAttribute() throws ConfigurationException
+    {
+        assertFalse(new Servers().parseAttribute(null, null));
+    }
+
 }

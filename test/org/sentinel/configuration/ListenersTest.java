@@ -29,4 +29,10 @@ public class ListenersTest extends ConfigurationParserCase
         assertBadChildNode(new Listeners(), "<listeners><bad/></listeners>");
     }
 
+    @Test
+    public void testParseAttribute() throws ConfigurationException
+    {
+        assertFalse(new Listeners().parseAttribute(null, null));
+    }
+
 }

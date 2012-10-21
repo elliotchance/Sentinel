@@ -14,6 +14,12 @@ public class SentinelTest extends ConfigurationParserCase
     }
 
     @Test
+    public void testParseAttribute() throws ConfigurationException
+    {
+        assertFalse(new Sentinel().parseAttribute(null, null));
+    }
+
+    @Test
     public void testToString()
     {
         assertEquals(new Sentinel().toString(), "<sentinel></sentinel>");

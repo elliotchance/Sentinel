@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sentinel>
+    <listeners>
+        <listener port="4040" server="helloWorldServer" foo="bar"></listener>
+    </listeners>
+    <servers>
+    </servers>
+</sentinel>

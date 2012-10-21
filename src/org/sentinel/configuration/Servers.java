@@ -2,7 +2,6 @@ package org.sentinel.configuration;
 
 import java.util.HashMap;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 public class Servers extends HashMap<String, Server> implements ConfigurationParser,
     ConfigurationNode
@@ -11,26 +10,7 @@ public class Servers extends HashMap<String, Server> implements ConfigurationPar
     @Override
     public ConfigurationNode parseRoot(Node node) throws ConfigurationException
     {
-        // read children
-        NodeList children = node.getChildNodes();
-        for(int i = 0; i < children.getLength(); ++i) {
-            Node child = children.item(i);
-            
-            // ignore text
-            if(child.getNodeType() == Node.TEXT_NODE) {
-                continue;
-            }
-            
-            // <server>
-            if(child.getNodeName().equals("server")) {
-                Server server = (Server) new Server().parseRoot(child);
-                put(server.getName(), server);
-                continue;
-            }
-            
-            throw new ConfigurationException("Bad child node '" + child.getNodeName() + "'");
-        }
-        
+        ConfigurationParserHelper.parseRoot(node, this);
         return this;
     }
 
@@ -42,6 +22,43 @@ public class Servers extends HashMap<String, Server> implements ConfigurationPar
             r += server;
         }
         return r + "</servers>";
+    }
+
+    @Override
+    public void parseTextElement(String content) throws ConfigurationException
+    {
+        // ignore
+    }
+
+    @Override
+    public boolean parseElement(Node node) throws ConfigurationException
+    {
+        // <server>
+        if(node.getNodeName().equals("server")) {
+            Server server = (Server) new Server().parseRoot(node);
+            put(server.getName(), server);
+            return true;
+        }
+        
+        return false;
+    }
+
+    @Override
+    public boolean parseAttribute(String name, String value) throws ConfigurationException
+    {
+        return false;
+    }
+
+    @Override
+    public String[] getRequiredChildElements()
+    {
+        return new String[] { };
+    }
+
+    @Override
+    public String[] getRequiredAttributes()
+    {
+        return new String[] { };
     }
     
 }

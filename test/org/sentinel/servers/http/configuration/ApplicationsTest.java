@@ -2,6 +2,7 @@ package org.sentinel.servers.http.configuration;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
+import org.sentinel.configuration.ConfigurationException;
 import org.sentinel.test.cases.ConfigurationParserCase;
 import org.w3c.dom.Node;
 
@@ -26,6 +27,12 @@ public class ApplicationsTest extends ConfigurationParserCase
         Node root = convertXmlToNode("<applications><application application=\"java.lang.Integer\" name=\"a\" prefix=\"b\"/></applications>");
         assertEquals(new Applications().parseRoot(root).toString(),
             "<applications><application application=\"java.lang.Integer\" name=\"a\" prefix=\"b\"/></applications>");
+    }
+
+    @Test
+    public void testParseAttribute() throws ConfigurationException
+    {
+        assertFalse(new Applications().parseAttribute(null, null));
     }
 
 }
